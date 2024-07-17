@@ -10,4 +10,9 @@ public class AppController {
     public String getHello() {
         return "Hello World from Spring Security";
     }
+
+    @GetMapping("/hello-pr")
+    public String helloProtected() {
+        return "PROTECTED Hello World from Spring Security";
+    }
 }

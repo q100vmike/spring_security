@@ -1,0 +1,8 @@
+{
+  "realm": "myapprealm",
+  "auth-server-url": "http://localhost:8080",
+  "resource": "myappclient",
+  "credentials": {
+    "secret": "6NfmvlzQvjmK8u2xUgDt581LNJUjQBzb"
+  }
+}
