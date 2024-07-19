@@ -17,7 +17,7 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8080/realms/myapprealm
-          jwk-set-uri: http://localhost:8080/realms/myapprealm/protocol/openid-connect/serts
+          jwk-set-uri: http://localhost:8080/realms/newmyapprealm/protocol/openid-connect/serts
   application:
     name: spring_security
   datasource:
