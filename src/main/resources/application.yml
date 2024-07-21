@@ -1,23 +1,15 @@
 server:
-  port: 8181
+  port: 8282
+logging:
+  level:
+    org.springframework.security: DEBUG
 spring:
   security:
     oauth2:
-      client:
-        registration:
-          keycloak:
-            client-id: myappclient
-            authorization-grant-type: authorization_code
-            scope:
-              - openid
-        provider:
-          keycloak:
-            issuer-uri: http://localhost:8080/realms/myapprealm
-            user-name-attribute: mike
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8080/realms/myapprealm
-          jwk-set-uri: http://localhost:8080/realms/newmyapprealm/protocol/openid-connect/serts
+          jwk-set-uri: http://localhost:8080/realms/myapprealm/protocol/openid-connect/serts
   application:
     name: spring_security
   datasource:

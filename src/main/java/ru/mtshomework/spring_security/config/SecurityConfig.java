@@ -19,28 +19,43 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import ru.mtshomework.spring_security.security.CustomAuthenticationEntryPoint;
+import ru.mtshomework.spring_security.security.CustomFilter;
 
 import java.io.IOException;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+    CustomFilter customFilter;
+
+    CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
+    public SecurityConfig(CustomFilter customFilter, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
+        this.customFilter = customFilter;
+        this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
+    }
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        return httpSecurity.httpBasic(Customizer.withDefaults())
-                .authorizeHttpRequests(authorizationRequests -> {
-            authorizationRequests.anyRequest().authenticated();
-        })
-                .oauth2ResourceServer(oath2 -> oath2.jwt(Customizer.withDefaults()))
-                .addFilterAfter(createPolicyEnforcerFilter(), BearerTokenAuthenticationFilter.class)
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        return http
+                .authorizeHttpRequests(authorize -> authorize
+                        .anyRequest().authenticated()
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults())
+                        .authenticationEntryPoint(customAuthenticationEntryPoint))
+                .addFilterAfter(createPolicyEnforcerFilter(), org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class)
+                .addFilterAfter(customFilter, org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class)
                 .build();
     }
 
     private ServletPolicyEnforcerFilter createPolicyEnforcerFilter() {
         return new ServletPolicyEnforcerFilter(new ConfigurationResolver() {
             @Override
-            public PolicyEnforcerConfig resolve(HttpRequest httpRequest) {
+            public PolicyEnforcerConfig resolve(HttpRequest request) {
                 try {
                     return JsonSerialization.readValue(getClass().getResourceAsStream("/policy-enforcer.json"), PolicyEnforcerConfig.class);
                 } catch (IOException e) {
@@ -49,18 +64,4 @@ public class SecurityConfig {
             }
         });
     }
-
-    /*@Bean
-    public UserDetailsService userDetailsService() {
-        InMemoryUserDetailsManager inMemoryUserDetailsManager = new InMemoryUserDetailsManager();
-        UserDetails mikeuser = User.withUsername("Mike").password(passwordEncoder().encode("pass")).build();
-        inMemoryUserDetailsManager.createUser(mikeuser);
-        return inMemoryUserDetailsManager;
-    }
-
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-*/}
+}
